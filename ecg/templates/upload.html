@@ -1,0 +1,415 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<style>
+    /* Scoped High-Contrast Medical Theme */
+    .upload-wrapper {
+        --med-blue: #0B6FA4;
+        /* Deep Medical Blue */
+        --med-accent: #2FA4A9;
+        /* Soft Green/Teal */
+        --med-dark: #0A1F33;
+        /* Dark Navy */
+        --med-gray: #6B7C93;
+        /* Muted Gray-Blue */
+        --med-bg-light: #F4FAFF;
+        /* Very Light Blue */
+        --white: #FFFFFF;
+
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: var(--med-dark);
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .header-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--med-dark);
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+    }
+
+    .header-subtitle {
+        font-size: 16px;
+        color: var(--med-gray);
+        font-weight: 500;
+    }
+
+    /* Subtle Waveform Line */
+    .header-divider {
+        height: 24px;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 H40 L45 0 L50 20 L55 5 L60 15 L65 10 H100' stroke='%230B6FA4' stroke-width='1' fill='none' opacity='0.2'/%3E%3C/svg%3E");
+        background-repeat: repeat-x;
+        background-position: center;
+        margin-top: 16px;
+        opacity: 0.6;
+    }
+
+    .form-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 40px;
+        border: 1px solid #E6EBF1;
+        box-shadow: 0 4px 20px rgba(11, 111, 164, 0.08);
+        /* Soft blue shadow */
+    }
+
+    .form-group {
+        margin-bottom: 32px;
+    }
+
+    .input-label {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--med-dark);
+        margin-bottom: 10px;
+    }
+
+    .text-input {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        border: 1px solid #CBD5E0;
+        border-radius: 10px;
+        background: var(--white);
+        color: var(--med-dark);
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .text-input:focus {
+        border-color: var(--med-blue);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(11, 111, 164, 0.1);
+    }
+
+    /* Upload Area - Card Style */
+    .upload-area {
+        background: var(--white);
+        border: 2px dashed #BFDBFE;
+        /* Light blue border */
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .upload-area:hover,
+    .upload-area.dragover {
+        border-color: var(--med-blue);
+        background: var(--med-bg-light);
+        box-shadow: 0 4px 12px rgba(11, 111, 164, 0.1);
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: var(--med-accent);
+        margin-bottom: 16px;
+        transition: transform 0.3s;
+    }
+
+    .upload-area:hover .upload-icon {
+        transform: scale(1.1);
+    }
+
+    .upload-text-main {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--med-blue);
+        margin-bottom: 8px;
+    }
+
+    .upload-text-sub {
+        font-size: 14px;
+        color: var(--med-gray);
+    }
+
+    /* File Preview Tags */
+    .file-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .file-tag {
+        background: var(--med-bg-light);
+        color: var(--med-blue);
+        border: 1px solid rgba(11, 111, 164, 0.2);
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+    .file-tag strong {
+        margin-right: 6px;
+    }
+
+    /* Primary Action Button */
+    .btn-submit {
+        background: var(--med-blue);
+        color: white;
+        width: 100%;
+        padding: 16px;
+        font-size: 18px;
+        font-weight: 700;
+        border: none;
+        border-radius: 999px;
+        /* Pill shape */
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px rgba(11, 111, 164, 0.3);
+        margin-top: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-submit:hover {
+        background: #095985;
+        /* Darker shade */
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(11, 111, 164, 0.4);
+    }
+
+    .btn-submit:disabled {
+        background: #94A3B8;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .secondary-action {
+        text-align: center;
+        margin-top: 24px;
+    }
+
+    .secondary-link {
+        color: var(--med-gray);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .secondary-link:hover {
+        color: var(--med-dark);
+        text-decoration: underline;
+    }
+
+    /* Processing Overlay */
+    .processing-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: none;
+        /* Flex when active */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 16px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #E2E8F0;
+        border-top-color: var(--med-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="upload-wrapper">
+
+    <div class="header-section">
+        <h1 class="header-title">New ECG Analysis</h1>
+        <p class="header-subtitle">Upload ECG recording files for AI interpretation</p>
+        <div class="header-divider"></div>
+    </div>
+
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+
+            <!-- Patient ID Input -->
+            <div class="form-group">
+                <label class="input-label">Patient ID / Record Name</label>
+                <input type="text" name="patient_id" class="text-input" placeholder="e.g. Patient_101" required>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="form-group">
+                <label class="input-label">ECG Data Files</label>
+
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">📂</div>
+                    <div class="upload-text-main">Drag & drop ECG files here</div>
+                    <div class="upload-text-sub">Supported formats: .dat, .hea, .atr</div>
+
+                    <!-- Hidden Inputs -->
+                    <input type="file" name="dat_file" id="datFile" accept=".dat" hidden>
+                    <input type="file" name="hea_file" id="heaFile" accept=".hea" hidden>
+                    <input type="file" name="atr_file" id="atrFile" accept=".atr" hidden>
+                </div>
+
+                <div class="file-preview" id="filePreview"></div>
+            </div>
+
+            <!-- Error Message Container -->
+            {% if error %}
+            <div
+                style="background: #FEF2F2; color: #DC2626; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #FECACA;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Primary Action -->
+            <button type="submit" class="btn-submit" id="submitBtn">
+                Analyze ECG Record
+            </button>
+
+            <!-- Processing Overlay (Visual only) -->
+            <div class="processing-overlay" id="processingOverlay">
+                <div class="spinner"></div>
+                <div style="font-weight: 600; color: var(--med-blue);">Analyzing ECG...</div>
+                <div style="font-size: 13px; color: var(--med-gray); margin-top: 5px;">This may take a moment</div>
+            </div>
+        </form>
+    </div>
+
+    <div class="secondary-action">
+        <a href="{% url 'home' %}" class="secondary-link">Cancel and return home</a>
+    </div>
+
+</div>
+
+<script>
+    const dropArea = document.getElementById('dropArea');
+    const filePreview = document.getElementById('filePreview');
+    const datInput = document.getElementById('datFile');
+    const heaInput = document.getElementById('heaFile');
+    const atrInput = document.getElementById('atrFile');
+    const form = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const processingOverlay = document.getElementById('processingOverlay');
+
+    // Click trigger
+    dropArea.addEventListener('click', () => {
+        if (!datInput.value) datInput.click();
+        else if (!heaInput.value) heaInput.click();
+        else atrInput.click();
+    });
+
+    // Drag & Drop visual feedback
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.classList.remove('dragover');
+        }, false);
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        handleFiles(dt.files);
+    }, false);
+
+    // Input changes
+    [datInput, heaInput, atrInput].forEach(input => {
+        input.addEventListener('change', function () {
+            handleFiles(this.files);
+        });
+    });
+
+    function handleFiles(files) {
+        ([...files]).forEach(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'dat') {
+                datInput.files = createFileList(file);
+                addFileTag(file.name, 'DAT');
+            } else if (ext === 'hea') {
+                heaInput.files = createFileList(file);
+                addFileTag(file.name, 'HEA');
+            } else if (ext === 'atr') {
+                atrInput.files = createFileList(file);
+                addFileTag(file.name, 'ATR');
+            }
+        });
+    }
+
+    function createFileList(file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        return dt.files;
+    }
+
+    function addFileTag(name, type) {
+        // limit duplicates visual
+        const existing = Array.from(document.querySelectorAll('.file-tag')).find(el => el.textContent.includes(type));
+        if (existing) existing.remove();
+
+        const tag = document.createElement('div');
+        tag.className = 'file-tag';
+        tag.innerHTML = `<strong>${type}</strong> ${name}`;
+        filePreview.appendChild(tag);
+    }
+
+    // Submit Animation
+    form.addEventListener('submit', function (e) {
+        if (!datInput.value || !heaInput.value) {
+            e.preventDefault();
+            alert("Please upload both .dat and .hea files.");
+            return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        processingOverlay.style.display = 'flex';
+        // Allow form to submit normally
+    });
+</script>
+{% endblock %}

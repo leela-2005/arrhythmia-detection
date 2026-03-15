@@ -1,0 +1,191 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<style>
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .result-badge {
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-normal {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-abnormal {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+
+    .info-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .graph-container {
+        background: white;
+        /* ECG graphs usually look best on white or light grid */
+        border-radius: 12px;
+        padding: 20px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .graph-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .explanation-list {
+        padding-left: 20px;
+        color: var(--text-main);
+    }
+
+    .explanation-list li {
+        margin-bottom: 8px;
+    }
+
+    .hash-box {
+        font-family: monospace;
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 6px;
+        word-break: break-all;
+        font-size: 12px;
+        color: var(--accent-teal);
+        margin-top: 10px;
+        border: 1px solid var(--border-color);
+    }
+</style>
+
+<div class="result-header">
+    <h2 style="margin: 0;">Analysis Results</h2>
+    <a href="{% url 'upload' %}" class="btn btn-outline">Analyze Another</a>
+</div>
+
+{% if result %}
+<div class="card">
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>Record ID</h3>
+            <div class="info-value">{{ result.record }}</div>
+        </div>
+        <div class="info-card">
+            <h3>Prediction</h3>
+            <div class="info-value">
+                {% if result.prediction == "Normal" %}
+                <span class="result-badge badge-normal">Normal Sinus Rhythm</span>
+                {% else %}
+                <span class="result-badge badge-abnormal">{{ result.prediction }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="info-card">
+            <h3>Signal Quality (SQI)</h3>
+            <div class="info-value">{{ result.sqi }}</div>
+        </div>
+        <div class="info-card">
+            <h3>Analysis Time</h3>
+            <div class="info-value" style="font-size: 16px;">{{ result.time }}</div>
+        </div>
+    </div>
+
+    <!-- ECG Graph -->
+    <h3 style="margin-bottom: 15px; color: var(--text-muted);">ECG Signal Visualization</h3>
+    <div class="graph-container">
+        {% if result.graph_url %}
+        <img src="/media/{{ result.graph_url }}" alt="ECG Result Graph">
+        {% else %}
+        <div class="text-center" style="padding: 40px; color: #64748b;">Graph not available</div>
+        {% endif %}
+    </div>
+
+    <div class="info-grid" style="margin-top: 30px;">
+        <!-- XAI -->
+        <div class="info-card">
+            <h3>Clinical Interpretation (XAI)</h3>
+            {% if result.explanation %}
+            <ul class="explanation-list">
+                {% for reason in result.explanation %}
+                <li>{{ reason }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No specific anomalies detected.</p>
+            {% endif %}
+        </div>
+
+        <!-- Feature Contributions -->
+        <div class="info-card">
+            <h3>Feature Contributions</h3>
+            {% if result.shap_outputs and result.shap_outputs.feature_contributions %}
+            <ul class="explanation-list">
+                {% for feature, value in result.shap_outputs.feature_contributions.items %}
+                <li>{{ feature }}: {{ value|floatformat:4 }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="padding-left: 20px; margin-top: 10px;">Not available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Blockchain -->
+        <div class="info-card">
+            <h3>Blockchain Verification</h3>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;">Immutable Record Hash:</div>
+            <div class="hash-box">
+                {{ result.block_hash }}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% else %}
+<div class="card text-center" style="padding: 60px;">
+    <h3 style="color: var(--text-muted);">No analysis data available</h3>
+    <p>Please upload a patient ECG record to generate a report.</p>
+    <a href="{% url 'upload' %}" class="btn btn-primary mt-4">Go to Upload</a>
+</div>
+{% endif %}
+
+{% endblock %}

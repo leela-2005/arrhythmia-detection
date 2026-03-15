@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart ECG Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: #e5e7eb;
+        }
+
+        header {
+            padding: 18px 30px;
+            background: rgba(2, 6, 23, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        header h1 {
+            font-size: 22px;
+            color: #60a5fa;
+            margin: 0;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #93c5fd;
+            font-size: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+
+        th {
+            color: #c7d2fe;
+            background-color: rgba(30, 41, 59, 0.7);
+        }
+
+        .badge-normal {
+            background: rgba(34,197,94,0.15);
+            color: #22c55e;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .badge-abnormal {
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            margin-top: 25px;
+            background: rgba(2, 6, 23, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .info-box h3 {
+            margin-top: 0;
+            color: #60a5fa;
+            font-size: 17px;
+        }
+
+        .info-box ul {
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 6px;
+            color: #e5e7eb;
+        }
+
+        .hash-box {
+            font-size: 13px;
+            word-break: break-all;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px 0;
+            color: #94a3b8;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Smart ECG IoMT Dashboard</h1>
+    <a href="/upload/" class="nav-btn">Upload ECG</a>
+</header>
+
+<div class="container">
+    <div class="card">
+
+        <h2>Latest Patient ECG Analysis</h2>
+
+        {% if result %}
+        <table>
+            <tr>
+                <th>Patient / Record ID</th>
+                <th>Date & Time</th>
+                <th>Signal Quality Index (SQI)</th>
+                <th>Prediction</th>
+            </tr>
+            <tr>
+                <td>{{ result.record }}</td>
+                <td>{{ result.time }}</td>
+                <td>{{ result.sqi }}</td>
+                <td>
+                    {% if result.prediction == "Normal" %}
+                        <span class="badge-normal">Normal</span>
+                    {% else %}
+                        <span class="badge-abnormal">Abnormal</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <div class="info-box">
+            <h3>Explainable AI Output</h3>
+
+            {% if result.explanation %}
+                <ul>
+                    {% for reason in result.explanation %}
+                        <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No abnormal ECG patterns detected.</p>
+            {% endif %}
+
+            <h3>Blockchain Verification</h3>
+            <div class="hash-box">
+                {{ result.block_hash }}
+            </div>
+        </div>
+
+        {% else %}
+        <div class="empty">
+            <h3>No ECG Data Available</h3>
+            <p>Please upload a new patient ECG to view results.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<footer>
+    © 2026 Smart ECG IoMT Healthcare System | Final Year Project
+</footer>
+
+</body>
+</html>

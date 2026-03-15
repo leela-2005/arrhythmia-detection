@@ -1,0 +1,176 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Blockchain Records - Smart ECG{% endblock %}
+
+{% block content %}
+<style>
+    .blockchain-hero {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-top: 20px;
+        animation: fadeIn 0.8s ease-out;
+    }
+    .blockchain-hero h1 { font-size: 32px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; }
+    .blockchain-hero p { font-size: 16px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    .records-container {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-md);
+        padding: 30px;
+        overflow-x: auto;
+    }
+
+    .records-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .records-table th {
+        padding: 15px;
+        background: linear-gradient(135deg, var(--primary), var(--accent-teal));
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .records-table th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+    .records-table th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+    .records-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        color: var(--text-main);
+        font-size: 14px;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .records-table tr:hover {
+        background-color: #f8fafc;
+        transition: background-color 0.2s;
+    }
+    
+    .hash-cell {
+        font-family: monospace;
+        color: var(--primary);
+        font-size: 12px;
+    }
+
+    .btn-verify {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-cyan));
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .verified { background: #dcfce7; color: #166534; }
+    .tampered { background: #fee2e2; color: #991b1b; }
+    .pending { background: #f1f5f9; color: #475569; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="blockchain-hero">
+    <h1>⛓️ Blockchain Audit Records</h1>
+    <p>View securely logged ECG prediction records on the simulated Ethereum local network to guarantee data integrity and AI transparency.</p>
+</div>
+
+<div class="records-container">
+    <table class="records-table">
+        <thead>
+            <tr>
+                <th>Record ID</th>
+                <th>Predicted Class</th>
+                <th>Confidence</th>
+                <th>Timestamp</th>
+                <th>SHAP Summary</th>
+                <th>SHA-256 Hash</th>
+                <th>Verification</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.record_id }}</td>
+                <td>{{ record.predicted_class }}</td>
+                <td>{{ record.confidence_score }}</td>
+                <td>{{ record.timestamp|date:"M d, Y H:i" }}</td>
+                <td title="{{ record.shap_summary }}">{{ record.shap_summary }}</td>
+                <td class="hash-cell" title="{{ record.stored_hash }}">{{ record.stored_hash|truncatechars:15 }}...</td>
+                <td id="status-{{ record.id }}">
+                    <span class="status-badge pending">Pending</span>
+                </td>
+                <td>
+                    <button class="btn-verify" onclick="verifyRecord({{ record.id }})">
+                        <i class="fa fa-shield-check"></i> Verify Integrity
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    No blockchain records found yet. Upload an ECG to generate predictions and secure logs.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function verifyRecord(recordId) {
+    const statusCell = document.getElementById('status-' + recordId);
+    statusCell.innerHTML = '<span class="status-badge pending">Verifying...</span>';
+    
+    // Convert to proper endpoint call
+    fetch(`/verify-record/${recordId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.verified) {
+                statusCell.innerHTML = '<span class="status-badge verified">✅ Verified (unchanged)</span>';
+            } else {
+                statusCell.innerHTML = '<span class="status-badge tampered">⚠ Tampered (mismatch)</span>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            statusCell.innerHTML = '<span class="status-badge error">Error</span>';
+        });
+}
+</script>
+{% endblock %}

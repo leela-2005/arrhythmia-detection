@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blockchain Ledger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #020617;
+            color: #e5e7eb;
+            padding: 30px;
+        }
+        .block {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .hash {
+            font-size: 13px;
+            word-break: break-all;
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Quantum Blockchain Ledger</h2>
+
+{% for block in blocks %}
+<div class="block">
+    <p><strong>Current Hash:</strong></p>
+    <div class="hash">{{ block.hash }}</div>
+
+    <p><strong>Previous Hash:</strong></p>
+    <div class="hash">{{ block.prev_hash }}</div>
+</div>
+{% empty %}
+<p>No blocks created yet.</p>
+{% endfor %}
+
+</body>
+</html>

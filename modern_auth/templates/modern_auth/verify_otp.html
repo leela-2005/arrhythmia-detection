@@ -1,0 +1,162 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Verify OTP - Smart ECG{% endblock %}
+
+{% block extra_css %}
+<!-- Include same CSS block as forgot password for consistency -->
+<style>
+    .auth-page-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 150px);
+        margin: -40px 0;
+        padding: 40px 0;
+    }
+
+    .modern-container {
+        background-color: #fff;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        width: 768px;
+        max-width: 100%;
+        min-height: 480px;
+        display: flex;
+    }
+
+    .form-section {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: white;
+    }
+
+    .info-section {
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent-teal) 100%);
+        color: white;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .info-section h1 { color: white; margin-bottom: 20px;}
+    .info-section p { font-size: 14px; line-height: 24px;}
+
+    .modern-form {
+        width: 100%;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modern-form h1 {
+        margin-bottom: 20px;
+        color: var(--text-main);
+    }
+    
+    .modern-form p {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-bottom: 25px;
+    }
+
+    .modern-form input {
+        background-color: #f1f5f9;
+        border: 1px solid transparent;
+        margin: 8px 0 15px 0;
+        padding: 12px 15px;
+        font-size: 20px;
+        letter-spacing: 5px;
+        text-align: center;
+        border-radius: 8px;
+        width: 100%;
+        outline: none;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+
+    .modern-form input:focus {
+        border-color: var(--primary);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .modern-form button {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        font-size: 13px;
+        padding: 12px 45px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        width: 100%;
+    }
+    
+    .modern-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(14, 165, 233, 0.3);
+    }
+    
+    .error-msg {
+        color: #ef4444;
+        font-size: 13px;
+        margin-bottom: 15px;
+        background: rgba(239, 68, 68, 0.1);
+        padding: 8px 12px;
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+    <div class="modern-container">
+        
+        <div class="form-section">
+            <form method="post" action="{% url 'verify_otp' %}" class="modern-form">
+                {% csrf_token %}
+                <h1>Verify OTP</h1>
+                <p>We've sent a 6-digit one-time password to your email. Please enter it below.</p>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="error-msg" {% if message.tags == 'success' %}style="color: var(--accent-teal); background: rgba(20, 184, 166, 0.1);"{% endif %}>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <input type="text" name="otp_code" placeholder="000000" maxlength="6" required>
+                
+                <button type="submit">Verify</button>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <h1>Check Email</h1>
+            <p>Your OTP will expire in 10 minutes. If you don't see it, check your spam folder.</p>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
