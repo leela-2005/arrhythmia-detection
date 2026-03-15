@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 # Configure Gemini API with the given key
-genai.configure(api_key="AIzaSyBmg5YvOJNqdcrhMd9f1iBZXA0IX7cz2F4")
+genai.configure(api_key="")
 
 def generate_gemini_explanation(feature_contributions, prediction):
     """
